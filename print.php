@@ -55,7 +55,7 @@ if(file_exists($filename_source)) {
     $printimage = shell_exec(
         sprintf(
             $config['print']['cmd'],
-            $filename_print
+            $filename_source
         )
     );
     echo json_encode(array('status' => 'ok', 'msg' => $printimage || ''));

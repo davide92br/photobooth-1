@@ -2,7 +2,6 @@
 
 require_once('config.inc.php');
 require_once('db.php');
-
 ?>
 <html>
 <head>
@@ -79,8 +78,8 @@ require_once('db.php');
 					<?php
 					$imagelist = ($config['gallery']['newest_first'] === true) ? array_reverse($images) : $images;
 					foreach($imagelist as $image) {
-						echo '<a href="/images/'.$image.'" data-size="1920x1280">
-								<img src="/thumbs/'.$image.'" />
+						echo '<a href="/'.($config['folders']['images']).'/'.$image.'" data-size="1920x1280">
+								<img src="/'.($config['folders']['thumbs']).'/'.$image.'" />
 								<figure>Caption</figure>
 							</a>';
 					}

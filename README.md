@@ -19,24 +19,37 @@ Modifications and new features:
 - digiCamControl, if used unter Windows for DSLR control
 - Apache
 
-### Installation
-On Raspbian:
+### Installazione
+Su Raspberry:
 ```
 sudo apt-get update
 sudo apt-get dist-upgrade
-sudo apt-get install git apache2 php5 php5-gd gphoto2 libav-tools
+sudo apt-get install apache2 -y
+sudo apt-get install php -y
+sudo apt-get install php-gd -y
+sudo apt-get install gphoto2 -y
+sudo apt-get install libav-tools -y
 cd /var/www/
 sudo rm -r html/
 sudo git clone https://github.com/andreknieriem/photobooth
 sudo mv photobooth html
-sudo chown -R pi: /var/www/
-sudo chmod -R 777 /var/www
-```
-Give sudo rights to the webserver user (www-data)
 
-```sudo nano /etc/sudoers```
-and add the following line to the file:
-```www-data ALL=(ALL) NOPASSWD: ALL```
+```
+
+Creo il punto di mount del disco fat32 dove salvare le foto
+```
+sudo fdisk -l
+sudo blkid /dev/sda1
+sudo mkdir /var/www/html/usbhdd
+sudo chown -R pi:pi /var/www/html/usbhdd
+sudo chmod 777 /var/www/html/usbhdd
+sudo nano /etc/fstab
+UUID=nostrouuid /var/www/html/usbhdd auto defaults,auto,umask=000,users,rw,uid=pi,gid=pi 0 0
+sudo mount /var/www/html/usbhdd
+sudo sh -c 'echo "KERNEL==\"sda\", RUN+=\"/bin/mount /var/www/html/usbhdd\"" >> /etc/udev/rules.d/99-mount.rules'
+sudo reboot
+```
+
 
 Open the IP address of your raspberry pi in a browser
 

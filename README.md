@@ -31,7 +31,7 @@ Su Raspberry:
   sudo apt-get install libav-tools -y
   cd /var/www/
   sudo rm -r html/
-  sudo git clone miogit
+  sudo git clone https://github.com/davide92br/photobooth-1.git
   sudo mv photobooth html
   sudo chown -R pi: /var/www/
   sudo chmod -R 777 /var/www
@@ -48,7 +48,7 @@ sudo mkdir /var/www/html/usbhdd
 sudo chown -R pi:pi /var/www/html/usbhdd
 sudo chmod 777 /var/www/html/usbhdd
 sudo nano /etc/fstab
-UUID=nostrouuid /var/www/html/usbhdd auto defaults,auto,umask=000,users,rw,uid=pi,gid=pi 0 0
+UUID=UUIDTROVATO /var/www/html/usbhdd auto defaults,auto,umask=000,users,rw,uid=pi,gid=pi 0 0
 sudo mount /var/www/html/usbhdd
 sudo sh -c 'echo "KERNEL==\"sda\", RUN+=\"/bin/mount /var/www/html/usbhdd\"" >> /etc/udev/rules.d/99-mount.rules'
 sudo reboot

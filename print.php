@@ -45,11 +45,11 @@ if(file_exists($filename_source)) {
         imagecopyresized($print, $code, $width, 0, 0, 0, ($height / 2), ($height / 2), imagesx($code), imagesy($code));
 
         imagejpeg($print, $filename_print);
-        imagedestroy($print);        
+        imagedestroy($print);
         imagedestroy($code);
         imagedestroy($source);
     }
-    
+
     // print image
     // fixme: move the command to the config.inc.php
     $printimage = shell_exec(

@@ -1,215 +1,168 @@
-#/bin/sh
+<?php
 
-# Gphoto2 2.5.7 compiler and installer script v0.4.1
-#
-# This script is specifically created for Raspbian http://www.raspbian.org
-# and Raspberry Pi http://www.raspberrypi.org but should work over any 
-# Debian-based distribution
-
-# Created and mantained by Gonzalo Cao Cabeza de Vaca
-# Please send any feedback or comments to gonzalo.cao(at)gmail.com
-# Updated for gPhoto2 2.5.1.1 by Peter Hinson
-# Updated for gPhoto2 2.5.2 by Dmitri Popov
-# Updated for gphoto2 2.5.5 by Mihai Doarna
-# Updated for gphoto2 2.5.6 by Mathias Peter
-# Updated for gphoto2 2.5.7 by Sijawusz Pur Rahnama
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+require_once('config.inc.php');
+require_once('db.php');
+?>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=no">
+	<title>Photobooth</title>
 
 
-if [ "$(whoami)" != "root" ]; then
-	echo "Sorry, this script must be executed with sudo or as root"
-	exit 1
-fi
+	<!-- Favicon + Android/iPhone Icons -->
+	<link rel="apple-touch-icon" sizes="180x180" href="/resources/img/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/resources/img/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/resources/img/favicon-16x16.png">
+	<link rel="manifest" href="/resources/img/site.webmanifest">
+	<link rel="mask-icon" href="/resources/img/safari-pinned-tab.svg" color="#5bbad5">
+	<meta name="msapplication-TileColor" content="#da532c">
+	<meta name="theme-color" content="#ffffff">
 
-echo 
-echo "----------------"
-echo "Updating sources"
-echo "----------------"
-echo
+	<link rel="stylesheet" href="/resources/css/normalize.css" />
+	<link rel="stylesheet" href="/resources/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="/resources/css/photoswipe.css">
+	<link rel="stylesheet" href="/resources/css/default-skin/default-skin.css">
+	<link rel="stylesheet" href="/resources/css/style.css" />
+	<script type="text/javascript">
+		var isdev = true;
+		var gallery_newest_first = <?php echo ($config['gallery']['newest_first']) ? 'true' : 'false'; ?>;
+	</script>
+</head>
+<body class="deselect">
+	<div id="wrapper">
 
-apt-get update
+		<!-- Start Page -->
+		<div class="stages" id="start">
+			<a class="gallery btn" href="#"><i class="fa fa-th"></i> <span data-l10n="gallery"></span></a>
+			<div class="blurred">
+			</div>
+			<div class="inner">
+				<div class="names"><hr class="small" /><hr><div data-l10n="startScreen"></div><hr><hr class="small" /></div>
+				<a href="#" class="btn takePic"><i class="fa fa-camera"></i> <span data-l10n="takePhoto"></span></a>
+			</div>
+		</div>
 
-echo 
-echo "--------------------------"
-echo "Removing gphoto2 if exists"
-echo "--------------------------"
-echo
+		<!-- Loader -->
+		<div class="stages" id="loader">
+			<div class="loaderInner">
+			<div class="spinner">
+				<i class="fa fa-cog fa-spin"></i>
+			</div>
 
-apt-get remove -y gphoto2
+			<div id="counter"></div>
+			<div class="loading"></div>
+			</div>
+		</div>
 
-echo 
-echo "-----------------------"
-echo "Installing dependencies"
-echo "-----------------------"
-echo
+		<!-- Result Page -->
+		<div class="stages" id="result">
+			<a href="#" class="btn homebtn"><i class="fa fa-home"></i> <span data-l10n="home"></span></a>
+			<div class="resultInner hidden">
+			<a href="#" class="btn gallery"><i class="fa fa-th"></i> <span data-l10n="gallery"></span></a>
+			<?php if($config['use_qr']){ echo '<a href="#" class="btn qrbtn"><span class="qrbtnlabel"><i class="fa fa-qrcode"></i> <span data-l10n="qr"></span></span></a>'; } ?>
+			<?php if($config['use_print']){ echo '<a href="#" class="btn printbtn"><i class="fa fa-print"></i> <span data-l10n="print"></span></a>'; } ?>
+			<a href="#" class="btn newpic"><i class="fa fa-camera"></i> <span data-l10n="newPhoto"></span></a>
+			</div>
+			<?php if($config['use_qr']){ echo '<div class="qr"></div>';} ?>
+		</div>
 
-apt-get install -y libltdl-dev libusb-dev libexif-dev libpopt-dev libudev-dev
-
-echo 
-echo "-------------------------"
-echo "Creating temporary folder"
-echo "-------------------------"
-echo
-
-mkdir gphoto2-temp-folder
-cd gphoto2-temp-folder
-
-echo "gphoto2-temp-folder created"
-
-
-echo 
-echo "-------------------------"
-echo "Downloading libusb 1.0.17"
-echo "-------------------------"
-echo
-
-if wget -q http://ftp.de.debian.org/debian/pool/main/libu/libusbx/libusbx_1.0.17.orig.tar.bz2
-	then
-		tar xjvf libusbx_1.0.17.orig.tar.bz2
-		cd libusbx-1.0.17/
-	else
-		echo "Unable to get libusbx_1.0.17"
-		echo "Cleaning and exiting..."
-		exit 1
-fi
-
-echo 
-echo "--------------------------------------"
-echo "Compiling and installing libusb 1.0.17"
-echo "--------------------------------------"
-
-./configure
-make
-make install
-cd ..
-
-
-echo 
-echo "----------------------------"
-echo "Downloading libgphoto2 2.5.7"
-echo "----------------------------"
-echo
-
-if wget -q http://downloads.sourceforge.net/project/gphoto/libgphoto/2.5.7/libgphoto2-2.5.7.tar.bz2
-	then
-		tar xjf libgphoto2-2.5.7.tar.bz2
-		cd libgphoto2-2.5.7
-	else
-		echo "Unable to get libgphoto2-2.5.7"
-		echo "Cleaning and exiting..."
-		exit 1
-fi
+		<!-- Gallery -->
+		<div id="gallery">
+			<div class="galInner">
+				<div class="galHeader">
+					<h1><span data-l10n="gallery"></span></h1>
+					<a href="#" class="close_gal"><i class="fa fa-times"></i></a>
+				</div>
+				<div class="images" id="galimages">
+					<?php
+					$imagelist = ($config['gallery']['newest_first'] === true) ? array_reverse($images) : $images;
+					foreach($imagelist as $image) {
+						echo '<a href="/'.($config['folders']['images']).'/'.$image.'" data-size="1920x1280">
+								<img src="/'.($config['folders']['thumbs']).'/'.$image.'" />
+								<figure>Caption</figure>
+							</a>';
+					}
+					?>
+				</div>
+			</div>
+		</div>
+		<?php if($config['show_fork']){ ?>
+			<a target="_blank" href="https://github.com/andreknieriem/photobooth"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+		<?php } ?>
+	</div>
 
 
-echo 
-echo "-----------------------------------------"
-echo "Compiling and installing libgphoto2 2.5.7"
-echo "-----------------------------------------"
-echo
+	<!-- Root element of PhotoSwipe. Must have class pswp. -->
+	<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
 
-./configure
-make
-make install
-cd ..
+		<!-- Background of PhotoSwipe.
+	 	It's a separate element, as animating opacity is faster than rgba(). -->
+		<div class="pswp__bg"></div>
 
-echo 
-echo "-------------------------"
-echo "Downloading gphoto2 2.5.6"
-echo "-------------------------"
-echo
+		<!-- Slides wrapper with overflow:hidden. -->
+		<div class="pswp__scroll-wrap">
 
-if wget -q http://downloads.sourceforge.net/project/gphoto/gphoto/2.5.6/gphoto2-2.5.6.tar.gz
-	then
-		tar xzvf gphoto2-2.5.6.tar.gz
-		cd gphoto2-2.5.6
-	else
-		echo "Unable to get gphoto2-2.5.6"
-		echo "Cleaning and exiting..."
-		exit 1
-fi
+			<!-- Container that holds slides.
+			PhotoSwipe keeps only 3 of them in DOM to save memory.
+			Don't modify these 3 pswp__item elements, data is added later on. -->
+			<div class="pswp__container">
+				<div class="pswp__item"></div>
+				<div class="pswp__item"></div>
+				<div class="pswp__item"></div>
+			</div>
 
+			<!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+			<div class="pswp__ui pswp__ui--hidden">
+				<div class="pswp__top-bar">
+					<!--  Controls are self-explanatory. Order can be changed. -->
 
-echo 
-echo "--------------------------------"
-echo "Compiling and installing gphoto2"
-echo "--------------------------------" 
-echo
+					<div class="pswp__counter"></div>
+					<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+					<button class="pswp__button pswp__button--share" title="Share"></button>
+					<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+					<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+					<?php if($config['use_print']){ echo '<button class="gal-print" title="Drucken"><i class="fa fa-print"></i></button>'; } ?>
+					<?php if($config['use_qr']){ echo '<button class="gal-qr-code" title="Qr Code öffnen"><i class="fa fa-qrcode"></i></button>'; } ?>
+					<!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+					<!-- element will get class pswp__preloader--active when preloader is running -->
+					<div class="pswp__preloader">
+						<div class="pswp__preloader__icn">
+	  				<div class="pswp__preloader__cut">
+							<div class="pswp__preloader__donut"></div>
+	  			</div>
+				</div>
+			</div>
+		</div>
 
-./configure
-make
-make install
-cd ..
+		<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+			<div class="pswp__share-tooltip"></div>
+		</div>
 
-echo 
-echo "-----------------"
-echo "Linking libraries"
-echo "-----------------"  
-echo
+		<button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+		</button>
 
-ldconfig
+		<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+		</button>
 
-echo
-echo "---------------------------------------------------------------------------------"
-echo "Generating udev rules, see http://www.gphoto.org/doc/manual/permissions-usb.html"
-echo "---------------------------------------------------------------------------------"
-echo
+		<div class="pswp__caption">
+			<div class="pswp__caption__center"></div>
+		</div>
+		</div>
+		</div>
+			<div class="pswp__qr">
 
-udev_version=$(udevd --version)
+			</div>
+	</div>
 
-if   [ "$udev_version" -ge "201" ]
-then
-  udev_rules=201
-elif [ "$udev_version" -ge "175" ]
-then
-  udev_rules=175
-elif [ "$udev_version" -ge "136" ]
-then
-  udev_rules=136
-else
-  udev_rules=0.98
-fi
-
-/usr/local/lib/libgphoto2/print-camera-list udev-rules version $udev_rules group plugdev mode 0660 > /etc/udev/rules.d/90-libgphoto2.rules
-
-if   [ "$udev_rules" = "201" ]
-then
-  echo
-  echo "------------------------------------------------------------------------"
-  echo "Generating hwdb file in /etc/udev/hwdb.d/20-gphoto.hwdb. Ignore the NOTE"
-  echo "------------------------------------------------------------------------"
-  echo
-  /usr/local/lib/libgphoto2/print-camera-list hwdb > /etc/udev/hwdb.d/20-gphoto.hwdb
-fi
-
-
-echo 
-echo "-------------------"
-echo "Removing temp files"
-echo "-------------------"
-echo
-
-cd ..
-rm -r gphoto2-temp-folder
-
-
-
-echo 
-echo "--------------------"
-echo "Finished!! Enjoy it!"
-echo "--------------------"
-echo
-
-gphoto2 --version
-
+	<script type="text/javascript" src="/resources/js/jquery.js"></script>
+	<script type="text/javascript" src="/resources/js/jquery.easing.1.3.js"></script>
+	<script type="text/javascript" src="/resources/js/TweenLite.min.js"></script>
+	<script type="text/javascript" src="/resources/js/EasePack.min.js"></script>
+	<script type="text/javascript" src="/resources/js/jquery.gsap.min.js"></script>
+	<script type="text/javascript" src="/resources/js/CSSPlugin.min.js"></script>
+	<script type="text/javascript" src="/resources/js/photoswipe.min.js"></script>
+	<script type="text/javascript" src="/resources/js/photoswipe-ui-default.min.js"></script>
+	<script type="text/javascript" src="/resources/js/photoinit.js"></script>
+	<script type="text/javascript" src="/resources/js/core.js"></script>
+	<script type="text/javascript" src="/lang/<?php echo $config['language']; ?>.js"></script>

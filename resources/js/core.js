@@ -137,9 +137,9 @@ var photoBooth = (function () {
         public.addImage(result.img);
 
         // Add Image
-        $('<img src="/images/' + result.img + '" class="original">').load(function () {
+        $('<img src="/usbhdd/images/' + result.img + '" class="original">').load(function () {
             $('#result').css({
-                'background-image': 'url(/images/' + result.img + ')'
+                'background-image': 'url(/usbhdd/images/' + result.img + ')'
             });
             startPage.fadeOut(400, function () {
                 resultPage.fadeIn(400, function () {
@@ -162,7 +162,7 @@ var photoBooth = (function () {
     // add image to Gallery
     public.addImage = function (image) {
         // fixme: set to appendTo, if new images should appear at the end, or to prependTo, if new images should appear at the beginning
-        var $node = $('<a>').html('<img src="/thumbs/' + image + '" />').data('size', '1920x1280').attr('href', '/images/' + image + '?new=1')
+        var $node = $('<a>').html('<img src="/usbhdd/thumbs/' + image + '" />').data('size', '1920x1280').attr('href', '/usbhdd/images/' + image + '?new=1')
         if (gallery_newest_first) {
             $node.prependTo($('#galimages'));
         } else {
@@ -256,7 +256,7 @@ var photoBooth = (function () {
         } else {
             pswpQR.empty();
             var img = pswp.currItem.src;
-            img = img.replace('/images/', '');
+            img = img.replace('/usbhdd/images/', '');
             $('<img>').attr('src', 'qrcode.php?filename=' + img).appendTo(pswpQR);
 
             pswpQR.addClass('qr-active').fadeIn('fast');
@@ -266,7 +266,7 @@ var photoBooth = (function () {
     $(document).on('click touchstart', '.gal-print', function (e) {
         e.preventDefault();
         var img = pswp.currItem.src;
-        img = img.replace('images/', '');
+        img = img.replace('/usbhdd/images/', '');
         $.ajax({
             url: 'print.php?filename=' + encodeURI(img),
         }).done(function (data) {

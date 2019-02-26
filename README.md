@@ -36,7 +36,9 @@ Su Raspberry:
   sudo chown -R pi: /var/www/
   sudo chmod -R 777 /var/www
   sudo nano /etc/sudoers
---> Add the following:
+  ```
+**--> Add the following:**
+```
   www-data ALL=(ALL) NOPASSWD: ALL
   sudo reboot
 ```
@@ -67,29 +69,35 @@ We need Gutenprint 5.2.13 or newer, unfortunately Raspbian Stretch includes only
 
 For that, we add the buster repositories with a lower priority (to avoid an upgrade of all packages) and select them later manually, when installing the drivers.
 
-Create file /etc/apt/preferences.d/stretch.pref with content
-
+Create file /etc/apt/preferences.d/stretch.pref with content**
+```
 Package: *
 Pin: release n=stretch
 Pin-Priority: 900
-Create file /etc/apt/preferences.d/buster.pref with content
-
+```
+**Create file /etc/apt/preferences.d/buster.pref with content**
+```
 Package: *
 Pin: release n=buster
 Pin-Priority: 750
-Add the following line to /etc/apt/sources.list:
+```
+**Add the following line to /etc/apt/sources.list:**
 
+```
 deb http://mirrordirector.raspbian.org/raspbian/ buster main contrib non-free rpi
-Install Gutenprint printer drivers
-With the up-to-date drivers available, we install them with the following command:
-
+```
+**Install Gutenprint printer drivers
+With the up-to-date drivers available, we install them with the following command:**
+```
 apt update
 apt install printer-driver-gutenprint -t buster
-Add user pi to group lpadmin
-To allow the current user to modify printer settings we must add it to the group lpadmin:
-
+```
+**Add user pi to group lpadmin
+To allow the current user to modify printer settings we must add it to the group lpadmin:**
+```
 sudo usermod -a -G lpadmin pi
-Plug in printer to USB port and add in CUPS
+```
+**Plug in printer to USB port and add in CUPS
 Plug in the printer.
 Open http://localhost:631 on the Raspberry Pi.
 Select 'Add Printer' in the Tab 'Administration'
@@ -100,8 +108,8 @@ In the last step, select the appropriate model in the list. For the Canon SELPHY
 Click "Add Printer". This concludes the installation.
 In the following dialogue, you can modify the default settings.
 Select default printer
-It is important that you set the printer as the default printer. For that, go to the CUPS administration interface (http://localhost:631), open the list of printers and select your printer. In the drop-down menu 'Administration' select 'Set as Server Default'.**
-Open the IP address of your raspberry pi in a browser
+It is important that you set the printer as the default printer. For that, go to the CUPS administration interface (http://localhost:631), open the list of printers and select your printer. In the drop-down menu 'Administration' select 'Set as Server Default'.
+Open the IP address of your raspberry pi in a browser**
 
 - Change the styling to your needs
 On Windows

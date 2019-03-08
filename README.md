@@ -89,8 +89,8 @@ deb http://mirrordirector.raspbian.org/raspbian/ buster main contrib non-free rp
 **Install Gutenprint printer drivers
 With the up-to-date drivers available, we install them with the following command:**
 ```
-apt update
-apt install printer-driver-gutenprint -t buster
+sudo apt update
+sudo apt install printer-driver-gutenprint -t buster
 ```
 **Add user pi to group lpadmin
 To allow the current user to modify printer settings we must add it to the group lpadmin:**
